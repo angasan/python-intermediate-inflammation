@@ -2,8 +2,10 @@
 """Software for managing and analysing patients' inflammation data in our imaginary hospital."""
 
 import argparse
+import os
 
 from inflammation import models, views
+from inflammation.compute_data import analyse_data, CSVDataSource
 
 
 def main(args):
@@ -18,14 +20,25 @@ def main(args):
     if not isinstance(in_files, list):
         in_files = [args.infiles]
 
+    if args.full_data_analysis:
+        # Instantiate data source object
+        data_source = CSVDataSource(os.path.dirname(in_files[0]))
+
+        # Analyse data
+        analyse_data(data_source)
+        return
+
     for filename in in_files:
         inflammation_data = models.load_csv(filename)
 
-        view_data = {'average': models.daily_mean(inflammation_data),
-                     'max': models.daily_max(inflammation_data),
-                     'min': models.daily_min(inflammation_data)}
+        view_data = {
+            'average': models.daily_mean(inflammation_data),
+            'max': models.daily_max(inflammation_data),
+            'min': models.daily_min(inflammation_data)
+        }
 
         views.visualize(view_data)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -35,6 +48,11 @@ if __name__ == "__main__":
         'infiles',
         nargs='+',
         help='Input CSV(s) containing inflammation series for each patient')
+
+    parser.add_argument(
+        '--full-data-analysis',
+        action='store_true',
+        dest='full_data_analysis')
 
     args = parser.parse_args()
 
