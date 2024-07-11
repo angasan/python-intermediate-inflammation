@@ -15,19 +15,20 @@ def main(args):
     - selecting the necessary models and views for the current task
     - passing data between models and views
     """
-    infiles = args.infiles
-    if not isinstance(infiles, list):
-        infiles = [args.infiles]
+    in_files = args.infiles
+
+    if not isinstance(in_files, list):
+        in_files = [args.infiles]
 
     if args.full_data_analysis:
         # Instantiate data source object
-        data_source = CSVDataSource(os.path.dirname(infiles[0]))
+        data_source = CSVDataSource(os.path.dirname(in_files[0]))
 
         # Analyse data
         analyse_data(data_source)
         return
 
-    for filename in infiles:
+    for filename in in_files:
         inflammation_data = models.load_csv(filename)
 
         view_data = {
